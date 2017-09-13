@@ -30,7 +30,7 @@ j = 1/2*S
 J = tf.reduce_mean(j)
 
 dj_dS = tf.constant(1/2, tf.float32)
-dS_dE = tf.constant(2*E, tf.float32)
+dS_dE = 2*E
 dE_dH = tf.constant(1, tf.float32)
 dH_dM = tf.constant(1, tf.float32)
 dH_db = tf.constant(1, tf.float32)
