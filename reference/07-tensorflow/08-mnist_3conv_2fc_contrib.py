@@ -35,11 +35,12 @@ with tf.Session() as sess:
     ckpt = tf.train.get_checkpoint_state('mnist/3conv_2fc/checkpoints')
     if ckpt and ckpt.model_checkpoint_path:
         saver.restore(sess, ckpt.model_checkpoint_path)
+        print('restore parameters (global_step=%d)' % global_step.eval())
     else:
         sess.run(tf.global_variables_initializer())
         
-    print('start training from %d steps' % global_step.eval())
     for step in range(global_step.eval(), 10000):
+        print('start training from %d steps' % (step+1))
         x_batch, y_batch = mnist.train.next_batch(100)
 
         if (step+1) % 1000 == 0:
