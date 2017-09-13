@@ -9,9 +9,9 @@ char2idx = {c: i for i, c in enumerate(idx2char)}
 
 seq_length = len(sample)-1
 num_classes = len(idx2char)
-input_dim = output_dim = hidden_size = num_classes
+input_dim = output_dim = num_units = num_classes
 learning_rate = 0.01
-steps = 200
+steps = 500
 
 def encode(string, shape=[1, -1]):
     return np.array([char2idx[c] for c in string if c in idx2char]).reshape(shape)
@@ -19,16 +19,16 @@ def encode(string, shape=[1, -1]):
 def decode(array):
     return ''.join([idx2char[i] for i in np.reshape(array, [-1])])
 
-x_data = encode(sample[:-1])
-y_data = encode(sample[1:])
+x_data = encode(sample[:-1]) # 'hi hell' (1, 7)
+y_data = encode(sample[1:])  # 'i hello'  (1, 7)
 
 X = tf.placeholder(tf.int32, [None, None])
 Y = tf.placeholder(tf.int32, [None, None])
 
-X_one_hot = tf.one_hot(X, input_dim)
-Y_one_hot = tf.one_hot(Y, output_dim)
+X_one_hot = tf.one_hot(X, input_dim) # (batch_size, seq_length, input_dim)
+Y_one_hot = tf.one_hot(Y, output_dim) # (batch_size, seq_length, output_dim)
 
-cell = tf.contrib.rnn.BasicRNNCell(hidden_size)
+cell = tf.contrib.rnn.BasicRNNCell(num_units)
 outputs, out_state = tf.nn.dynamic_rnn(cell, X_one_hot, dtype=tf.float32)
 prediction = tf.argmax(outputs, 2)
 
@@ -40,7 +40,7 @@ with tf.Session() as sess:
     
     for step in range(steps):
         _cost, _prediction, _ = sess.run([cost, prediction, train], {X: x_data, Y: y_data})
-        if step % 20 == 0:
+        if step % 100 == 0:
             print('step: %d, cost: %.5e, prediction: %s' % (step, _cost, decode(_prediction)))
     
     input = 'h'

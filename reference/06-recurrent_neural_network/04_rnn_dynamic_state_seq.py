@@ -11,7 +11,7 @@ char2idx = {c: i for i, c in enumerate(idx2char)}
 
 seq_length = len(sample)-1
 num_classes = len(idx2char)
-input_dim = output_dim = hidden_size = num_classes
+input_dim = output_dim = num_units = num_classes
 learning_rate = 0.01
 steps = 200
 
@@ -26,14 +26,14 @@ sequence = encode(sample)
 S = tf.placeholder(tf.int32, [None, None])
 S_one_hot = tf.one_hot(S, num_classes)
 
-cell = tf.contrib.rnn.BasicRNNCell(hidden_size)
-init_state = tf.placeholder_with_default(cell.zero_state(tf.shape(S)[0], tf.float32), [None, hidden_size])
+cell = tf.contrib.rnn.BasicRNNCell(num_units)
+init_state = tf.placeholder_with_default(cell.zero_state(tf.shape(S)[0], tf.float32), [None, num_units])
 outputs, out_state = tf.nn.dynamic_rnn(cell, S_one_hot, initial_state=init_state, dtype=tf.float32)
 prediction = tf.argmax(outputs, 2)
 
-# cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=S_one_hot[:, 1:], logits=outputs[:, :-1]))
-weights = tf.ones(tf.shape(S))[:, :-1]
-cost = tf.contrib.seq2seq.sequence_loss(logits=outputs[:, :-1], targets=S[:, 1:], weights=weights)
+cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=S_one_hot[:, 1:], logits=outputs[:, :-1]))
+# weights = tf.ones(tf.shape(S))[:, :-1]
+# cost = tf.contrib.seq2seq.sequence_loss(logits=outputs[:, :-1], targets=S[:, 1:], weights=weights)
 train = tf.train.AdamOptimizer(learning_rate).minimize(cost)
 
 with tf.Session() as sess:

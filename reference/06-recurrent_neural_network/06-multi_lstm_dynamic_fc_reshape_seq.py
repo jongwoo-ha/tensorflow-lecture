@@ -12,7 +12,7 @@ char2idx = {c: i for i, c in enumerate(idx2char)}
 seq_length = 32
 num_classes = len(idx2char)
 input_dim = output_dim = num_classes
-hidden_size = 128
+num_units = 128
 num_cells = 2
 learning_rate = 0.1
 steps = 1000
@@ -23,20 +23,20 @@ def encode(string, shape=[-1]):
 def decode(array):
     return ''.join([idx2char[i] for i in np.reshape(array, [-1])])
 
-def lstm_cell(hidden_size=hidden_size):
-    return tf.contrib.rnn.BasicLSTMCell(hidden_size)
+def lstm_cell(num_units=num_units):
+    return tf.contrib.rnn.BasicLSTMCell(num_units)
 
 sequences = []
 for i in range(0, len(sample) - seq_length + 1):
     sequences.append(encode(sample[i : i+seq_length]))
 sequences = np.array(sequences)
-    
+
 S = tf.placeholder(tf.int32, [None, None])
 S_one_hot = tf.one_hot(S, num_classes)
 
 cell = tf.contrib.rnn.MultiRNNCell([lstm_cell() for _ in range(num_cells)])
 outputs, _state = tf.nn.dynamic_rnn(cell, S_one_hot, dtype=tf.float32)
-outputs = tf.reshape(outputs, [-1, hidden_size])
+outputs = tf.reshape(outputs, [-1, num_units])
 logits = tf.contrib.layers.fully_connected(outputs, num_classes, None)
 logits = tf.reshape(logits, [tf.shape(S)[0], -1, num_classes])
 prediction = tf.argmax(logits, 2)
@@ -58,3 +58,9 @@ with tf.Session() as sess:
     print('sample:', sample)
     print('result:', result)
     print('sample equals result:', result == sample)
+    
+    input = 'i'
+    for i in range(len(sample)-1):
+        p = decode(sess.run(prediction, {S: encode(input).reshape([-1, len(input)])}))
+        input += p[-1:]
+    print('generate:', input)

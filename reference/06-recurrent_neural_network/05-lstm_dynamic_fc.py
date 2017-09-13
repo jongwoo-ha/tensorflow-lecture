@@ -9,10 +9,10 @@ sample = ("if you want to build a ship, don't drum up people together to "
 idx2char = list(set(sample))
 char2idx = {c: i for i, c in enumerate(idx2char)}
 
-seq_length = 32
+seq_length = 64
 num_classes = len(idx2char)
 input_dim = output_dim = num_classes
-hidden_size = 128
+num_units = 128
 learning_rate = 0.1
 steps = 1000
 
@@ -26,11 +26,13 @@ sequences = []
 for i in range(0, len(sample) - seq_length + 1):
     sequences.append(encode(sample[i : i+seq_length]))
 sequences = np.array(sequences)
+
+print(len(sequences))
     
 S = tf.placeholder(tf.int32, [None, None])
 S_one_hot = tf.one_hot(S, num_classes)
 
-cell = tf.contrib.rnn.BasicLSTMCell(hidden_size)
+cell = tf.contrib.rnn.BasicLSTMCell(num_units)
 outputs, _state = tf.nn.dynamic_rnn(cell, S_one_hot, dtype=tf.float32)
 logits = tf.contrib.layers.fully_connected(outputs, output_dim, None)
 prediction = tf.argmax(logits, 2)
@@ -51,3 +53,11 @@ with tf.Session() as sess:
     print('sample:', sample)
     print('result:', result)
     print('sample equals result:', result == sample)
+    
+    input = 'i'
+    for i in range(len(sample)-1):
+        p = decode(sess.run(prediction, {S: encode(input).reshape([-1, len(input)])}))
+        input += p[-1:]
+    print('generate:', input)
+    
+    

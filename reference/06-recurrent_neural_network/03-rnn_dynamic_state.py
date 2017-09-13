@@ -11,7 +11,7 @@ char2idx = {c: i for i, c in enumerate(idx2char)}
 
 seq_length = len(sample)-1
 num_classes = len(idx2char)
-input_dim = output_dim = hidden_size = num_classes
+input_dim = output_dim = num_units = num_classes
 learning_rate = 0.01
 steps = 200
 
@@ -30,8 +30,8 @@ Y = tf.placeholder(tf.int32, [None, None])
 X_one_hot = tf.one_hot(X, input_dim)
 Y_one_hot = tf.one_hot(Y, output_dim)
 
-cell = tf.contrib.rnn.BasicRNNCell(hidden_size)
-init_state = tf.placeholder_with_default(cell.zero_state(tf.shape(X)[0], tf.float32), [None, hidden_size])
+cell = tf.contrib.rnn.BasicRNNCell(num_units)
+init_state = tf.placeholder_with_default(cell.zero_state(tf.shape(X)[0], tf.float32), [None, num_units])
 outputs, out_state = tf.nn.dynamic_rnn(cell, X_one_hot, initial_state=init_state, dtype=tf.float32)
 prediction = tf.argmax(outputs, 2)
 
