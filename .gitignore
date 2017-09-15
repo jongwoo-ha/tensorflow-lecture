@@ -1,0 +1,12 @@
+/temp
+_exercise
+dataset/MNIST_data
+backup
+.ipynb_checkpoints
+.pydevproject
+.project
+reference/07-tensorflow/mnist
+reference/07-tensorflow/temp
+*/07-tensorflow/mnist
+*/07-tensorflow/temp
+__pycache__
